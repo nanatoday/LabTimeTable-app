@@ -31,7 +31,9 @@
           #nav1{
             padding: 1px;
           }  
-          
+          #first{
+          width: 0%;
+        }
         }
     </style>
     
@@ -39,7 +41,7 @@
 <body class="bg-light">
     <nav id="nav1" class="navbar navbar-expand-sm bg-dark navbar-dark">
         <div class="container-fluid p-3">
-          <a class="navbar-brand" href="#"><img src="{{url_for('static', filename='rmulogo.png')}}" alt="Avatar Logo" style="width:40px;" class="rounded-pill">ICT LAB ALLOCATION SYSTEM ADMIN</a>
+          <a class="navbar-brand" href="#"><img src="{{url_for('static', filename='rmulogo.png')}}" alt="Avatar Logo" style="width:40px;" class="rounded-pill">ICT LAB ALLOCATION SYSTEM</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -65,38 +67,39 @@
           </div>
         </div>
       </nav>
-      
+
     <div class="row">
-        <div class="col-2"></div>
+        <div class="col-2" id="first"></div>
         <div class="col-2"></div>
         <div class="col-4" id="card">
             <div class="row" id="here">
                 <div class="col">
                     <br><br><br>
+                    
                     <div style="box-shadow: 0 4px 8px 0 rgba(41, 10, 10, 0.7); padding:1rem;">
-                    <div class="row"><div class="col-10"><label for="username">Username</label>
-                      <input type="text" name="username" class="form-control" value="{{item.username}}" disabled></div></div>
-                    <div class="row">
-                      <div class="col-10"><label for="email">Email</label><input class="form-control" value="{{item.email}}" name="email" type="email" disabled></div></div><br>
+                      <div class="row">
+                        <div class="col-10"><label for="username">Username</label><input class="form-control" value="{{item.username}}" name="username" type="text" disabled>
+                        </div></div><br>
+                        <div class="row">
+                          <div class="col-10"><label for="email">Email</label><input class="form-control" value="{{item.email}}" name="email" type="email" disabled></div></div><br>
                     <div class="btn btn-dark" data-bs-toggle="collapse" data-bs-target="#show">Change Password</div><br><br>
                     <div class="collapse" id="show">
                         <form action="/admin/updatepassword" method="post">
                           <div class="row">
                             <div class="col-6"><label for="password">New Password</label><input class="form-control" type="password" name="password" placeholder="New Password" required> </div>
                             <div class="col-6"><label for="confirmPassword">Confirm Password</label><input class="form-control" type="password" name="confirmPassword" placeholder="Confirm Password" required></div></div><br>
-                          <div class="text-center"><a class="btn btn-primary">Submit</a></div>
-                        </form>
-                    </div>
+                  <div class="text-center"><button type="submit" class="btn btn-primary">Submit</button></div></form>
+                     </div>
                 </div>
                 </div>
             </div>
-          {% with messages = get_flashed_messages() %}
-            {% if messages %}
-              {% for message in messages %}
-                {{ message }}
-              {% endfor %}
-            {% endif %}
-          {% endwith %} 
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for message in messages %}
+                  {{ message }}
+                {% endfor %}
+              {% endif %}
+            {% endwith %} 
             <div class="col-2"></div>
             <div class="col-2"></div>
         </div>
