@@ -18,11 +18,7 @@
           bottom: 0;    
           width: 100%; 
         }
-        body{
-          position: relative;      
-          min-height: 100vh;         
-          padding-bottom: 6rem
-        }
+
         @media(max-width:850px){
           #card{
             width:60%;
@@ -72,23 +68,19 @@
         <div class="col-2" id="first"></div>
         <div class="col-2"></div>
         <div class="col-4" id="card">
-            <div class="row" id="here">
-                <div class="col">
                     <br><br><br>
-                    <div style="box-shadow: 0 4px 8px 0 rgba(41, 10, 10, 0.7); padding:1rem;">
-                      <div class="row">
+                    <div style="box-shadow: 0 4px 8px 0 rgba(100, 87, 87, 0.7); padding:1rem;">
+                      <form action="/admin/updateuser/{{item.lecId}}" method="post">
+                      <div class="row">                    
                       <div class="col-6"><label for="lname">Last Name</label><input class="form-control" value="{{item.lastName}}" name="lname" type="text" disabled></div>
                       <div class="col-6"><label for="fname">First Name</label><input class="form-control" value="{{item.firstname}}" name="fname" type="text" disabled></div></div><br>
                       <div class="row">
-                        <div class="col-10"><label for="email">Email</label><input class="form-control" value="{{item.email}}" name="email" type="email" disabled></div></div><br>
-                        <div class="row">
-                          <div class="col-6"><label for="password">New Password</label><input class="form-control" type="password" name="password" placeholder="New Password" required> </div>
-                          <div class="col-6"><label for="confirmPassword">Confirm Password</label><input class="form-control" type="password" name="confirmPassword" placeholder="Confirm Password" required></div></div> <br>
-                                         
-            
-                   <div class="text-center"><a href="/admin/update}" class="btn btn-primary">Submit</a></div>
-                </div>
-                </div>
+                      <div class="col-10"><label for="email">Email</label><input class="form-control" value="{{item.email}}" name="email" type="email" disabled></div></div><br>
+                      <div class="row">
+                      <div class="col-6"><label for="password">New Password</label><input class="form-control" type="password" name="password" placeholder="New Password" required> </div>
+                      <div class="col-6"><label for="confirmPassword">Confirm Password</label><input class="form-control" type="password" name="confirmPassword" placeholder="Confirm Password" required></div></div> <br>
+                      <div class="text-center"><a class="btn btn-primary">Submit</a></div></form>
+  
             </div></div>
             <div class="col-2"></div>
             <div class="col-2"></div>
@@ -99,8 +91,8 @@
 
 
     
-    <div class="container-fluid"  id="footer">
-      <div class="row text-center">
+    <div class="container-fluid" >
+      <div class="row text-center fixed-bottom">
           <div class="col-6 border">
               <p>contact us on</p>
               <p class="text-primary">0203222100</p>

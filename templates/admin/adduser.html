@@ -18,18 +18,11 @@
           bottom: 0;    
           width: 100%; 
         }
-        body{
-          position: relative;      
-          min-height: 100vh;         
-          padding-bottom: 6rem
-        }
+
         @media(max-width:850px){
           #card{
             width:60%;
             margin-left: 2px;
-          }
-          #nav1{
-            padding: 1px;
           }  
           #first{
             width: 0%;
@@ -59,7 +52,7 @@
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">{{nameOfUser}}</a>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="admin/profile">Profile</a></li>
+                  <li><a class="dropdown-item" href="/admin/profile">Profile</a></li>
                   <li><a class="dropdown-item" href="/logout">Logout</a></li>
                 </ul>
               </li>    
@@ -68,13 +61,13 @@
         </div>
       </nav>
       
-    <div class="row mb-3">
+    <div class="row" style="margin-bottom: 50px;">
         <div class="col-2" id="first"></div>
         <div class="col-2"></div>
         <div class="col-4" id="card">
             <div class="row" id="here">
                 <div class="col">
-                    <br><br><br>
+                    <br><br>
                     <div style="box-shadow: 0 4px 8px 0 rgba(41, 10, 10, 0.7); padding:1rem;">
                       <h2 class="text-center">Add User</h2>
                       <form action="/admin/adduser" method="post">
@@ -83,23 +76,23 @@
                           <div class="col-6"><label for="fname">First Name</label><input class="form-control" name="fname" type="text" required></div></div><br>
                           <div class="row">
                             <div class="col-6"><label for="email">Email</label><input class="form-control" name="email" type="email" required></div>
-                            <div class="col-6"><label for="password"></label>Password<input class="form-control" name="password" required type="password"></div></div><br>
+                            <div class="col-6"><label for="password">Password</label><input class="form-control" name="password" type="password" required></div></div><br>
                             <div class="text-center"><button type="submit" class="btn btn-dark">Submit</button></div>
                     </form>
                 </div>
                 </div>
-            </div>
+            </div></div>
             <div class="col-2"></div>
             <div class="col-2"></div>
-        </div>
+        
     </div>
     
 
 
 
     
-    <div class="container-fluid"  id="footer">
-      <div class="row text-center">
+    <div class="container-fluid">
+      <div class="row text-center fixed-bottom">
           <div class="col-6 border">
               <p>contact us on</p>
               <p class="text-primary">0203222100</p>

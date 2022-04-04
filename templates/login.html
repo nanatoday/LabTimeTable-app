@@ -18,7 +18,7 @@
         }
         @media(max-width:850px){
           #here{
-            width:70%;
+            width:100%;
             margin-left: 2px;
           }  
           #first{
@@ -29,20 +29,20 @@
 </head>
 <body class="bg-light">
     <div class="row p-5 mt-5">
-        <div class="col-2" id="first"></div>
-        <div class="col-2">
-
-        </div>
-        <div class="col-5" id="here">
+        <div class="col-4" id="first"></div>
+        
+        <div class="col-4" id="here">
             <div class="card shadow-lg o-hidden border-0">
                 <div class="card-body">
                     <h3>Log In!</h3><hr>
                     <div class="text-start">
                 <form action="/login" method="post">
-                <label for="email"><strong>Email</strong></label><br>
-                <input class="form-control" type="email" placeholder="Enter Email Address..." id="email" name="email" required><br>
-                <label for="password"><strong>Password</strong></label><br>
-                <input class="form-control" type="password" name="password" id="passsword" placeholder="Password" required><br>
+                <div class="row"><div class="col-2"></div><div class="col-8"><input class="form-control" type="email" placeholder="Enter Email Address..." id="email" name="email" required></div>
+                <div class="col-2"></div></div>
+                <br>
+                <div class="row"><div class="col-2"></div><div class="col-8"><input class="form-control" type="password" name="password" id="passsword" placeholder="Password" required></div>
+                <div class="col-2"></div></div>
+                <br>
                 <div class="text-center"><button class="btn btn-dark" type="submit">LogIn</button>
                 
             </form>
@@ -60,6 +60,7 @@
             <a href="/forgotpassword">Forgot Password?</a></p></div> </div>
                 </div>
             </div>
+            <div class="col-4"></div>
         </div>
 
     </div>

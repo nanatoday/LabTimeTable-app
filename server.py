@@ -159,14 +159,6 @@ def login():
     
     return render_template('login.html',msg=msg)
 
-##--------------------------
-##----verfication mail------
-##--------------------------
-#@app.route('/sendmail',methods=['POST','GET'])
-#def sendMail():
-#    pass
-
-
 
 
 ##---------DASHBOARD----------
@@ -346,7 +338,6 @@ def profile():
     cur=mysql.connection.cursor()
     cur.execute('SELECT firstName,lastName,email FROM USERS WHERE lecId=%s',[g.id])
     item=cur.fetchone()
-
     return render_template('profile.html',nameOfUser=nameOfUser,item=item)
     
 
@@ -356,6 +347,7 @@ def profile():
 #---------------------------------
 @app.route('/updatepassword',methods=["POST","GET"])
 def updatePassword():
+    if request.method=="POST":
         password=request.form['password'].encode('utf-8')
         hash_password=bcrypt.hashpw(password,bcrypt.gensalt())
         cur=mysql.connection.cursor()
@@ -634,7 +626,8 @@ def adminlab2():
     nameOfUser='admin'
     return render_template('admin/lab2.html',nameOfUser=nameOfUser,totalSlots=totalSlots,bookedSlots=bookedSlots,availableSlots=availableSlots,mondays=mondays,tuesdays=tuesdays,wednesdays=wednesdays,thursdays=thursdays,fridays=fridays)
 
-
+path_wkhtmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
 
 #---------------------------------
 #--------lab1 timetable list------
@@ -667,7 +660,7 @@ def table2():
 @app.route('/admin/editslot/<int:itemid>',methods=["POST","GET"])
 def edit_slot(itemid):
     cur=mysql.connection.cursor()
-    cur.execute("Select * from Lab1 where slotId=%s",[itemid])
+    cur.execute("Select * from Lab1 where slotID=%s",[itemid])
     item=cur.fetchone()
     lab1='lab1'
     nameOfUser='admin'
@@ -682,7 +675,7 @@ def update_slot(itemid):
         course=request.form['course']
         initials=request.form['initials']
         cur=mysql.connection.cursor()
-        cur.execute("UPDATE Lab1 set courseCode =%s,initials=%s where slotId=%s",[course,initials,itemid])
+        cur.execute("UPDATE Lab1 set courseCode =%s,initials=%s where slotID=%s",[course,initials,itemid])
         mysql.connection.commit()
         return redirect(url_for('table1'))
 
@@ -692,7 +685,7 @@ def update_slot(itemid):
 @app.route('/admin/editlab2slot/<int:itemid>',methods=["POST","GET"])
 def editlab2slot(itemid):
     cur=mysql.connection.cursor()
-    cur.execute("Select * from Lab2 where slotId=%s",[itemid])
+    cur.execute("Select * from Lab2 where slotID=%s",[itemid])
     item=cur.fetchone()
     return render_template('admin/editslot.html',item=item)
 
@@ -705,7 +698,7 @@ def updatelab2slot(itemid):
         course=request.form['course']
         initials=request.form['initials']
         cur=mysql.connection.cursor()
-        cur.execute("UPDATE Lab2 set courseCode =%s,initials=%s where slotId=%s",[course,initials,itemid])
+        cur.execute("UPDATE Lab2 set courseCode =%s,initials=%s where slotID=%s",[course,initials,itemid])
         mysql.connection.commit()
         return redirect(url_for('table2'))
 
@@ -717,7 +710,7 @@ def adminProfile():
     if g.loggedin==True:
         itemid=g.id
         cur=mysql.connection.cursor()
-        cur.execute('SELECT username,email FROM ADMIN WHERE adminId=%s',[itemid])
+        cur.execute('SELECT username,email FROM ADMIN WHERE adminID=%s',[itemid])
         item=cur.fetchone()
         nameOfUser='admin'
         return render_template('admin/profile.html',item=item,nameOfUser=nameOfUser,itemid=itemid)
@@ -736,15 +729,36 @@ def updateAdminPassword():
         password=request.form['password'].encode('utf-8')
         hash_password=bcrypt.hashpw(password,bcrypt.gensalt())
         cur=mysql.connection.cursor()
-        cur.execute("UPDATE ADMIN SET password=%s where adminId=%s",[hash_password,g.id])
+        cur.execute("UPDATE ADMIN SET password=%s where adminID=%s",[hash_password,g.id])
         mysql.connection.commit()
         flash('Password Updated Successfully')
         return redirect(url_for("adminProfile"))
 
 
+#---------------------------------
+#------downlaod lab1 timetable----
+#---------------------------------
+@app.route('/admin/download',methods=["POST","GET"])
+def downloadlab1():
+    rendered=render_template('admin/dashboard.html')
+    pdf=pdfkit.from_string(rendered,False,configuration=config)
+    response=make_response(pdf)
+    response.headers["Content-Type"]="application/pdf"
+    response.headers["Content-Disposition"]="inline; filename=lab1.pdf"
+    return response
 
 
-
+#---------------------------------
+#------downlaod lab2 timetable----
+#---------------------------------
+@app.route('/admin/download2',methods=["POST","GET"])
+def downloadlab2():
+    rendered=render_template('admin/lab1table.html')
+    pdf=pdfkit.from_string(rendered,False)
+    response=make_response(pdf)
+    response.headers["Content-Type"]="application/pdf"
+    response.headers["Content-Disposition"]="inline; filename=lab2.pdf"
+    return response
 
 #---------------------------------
 #-------------userslist-----------
@@ -791,7 +805,7 @@ def updateUser(itemid):
         password=request.form['password'].encode('utf-8')
         hash_password=bcrypt.hashpw(password,bcrypt.gensalt())
         cur=mysql.connection.cursor()
-        cur.execute("UPDATE USERS SET password=%s where lecId=%s",[hash_password,itemid])
+        cur.execute("UPDATE USERS SET lecPassword=%s where lecId=%s",[hash_password,itemid])
         mysql.connection.commit()
         flash('Password Updated Successfully')
         return redirect(url_for('userslist'))
@@ -802,6 +816,9 @@ def updateUser(itemid):
 #---------------------------------
 @app.route('/admin/adduser',methods=["POST","GET"])
 def addUser():
+    if not g.type=='admin':
+        return redirect(url_for('adminIndex'))
+
     if request.method=="POST":
         email=request.form['email']
         lname=request.form['lname']

@@ -25,9 +25,7 @@
             width: 0%;
           }
         }
-        input{
-          border-radius: 8px;
-        }
+
     </style>
 </head>
 <body>
@@ -87,9 +85,10 @@
             <div class="col text-center">
 
                 <form action="/admin/login" method="post"> 
-                  <div class="row"><div class="col-2"></div> <div class="col-8"><label for="username"><strong>Username</strong></label><br>
-                    <input class="form-control" type="text" placeholder="user123" id="username" name="username" required></div><div class="col-2"></div></div>
-                  <div class="row"><div class="col-2"></div> <div class="col-8"><label for="password"><strong>Password</strong></label><br>
+                  <br>
+                  <div class="row"><div class="col-2"></div> <div class="col-8">
+                    <input class="form-control" type="text" placeholder="Username" id="username" name="username" required></div><div class="col-2"></div></div><br>
+                  <div class="row"><div class="col-2"></div> <div class="col-8">
                     <input class="form-control" type="password" name="password" id="passsword" placeholder="Password" required><br></div><div class="col-2"></div></div>
                     
                     
@@ -123,15 +122,16 @@
                     <div class="col text-center">
 
                         <form action="/admin/signup" method="post">
-                          <div class="row"><div class="col-2"></div> <div class="col-8"><label for="email"><strong>Email</strong></label><br>
-                            <input class="form-control" type="email" placeholder="Enter Email Address..." id="email" name="email" required></div><div class="col-2"></div></div>
-                            <div class="row"><div class="col-2"></div> <div class="col-8"><label for="username"><strong>Username</strong></label><br>
-                              <input class="form-control" type="text" placeholder="user123" id="username" name="username" required><br></div><div class="col-2"></div></div>
+                          <br>
+                          <div class="row"><div class="col-2"></div> <div class="col-8">
+                            <input class="form-control" type="email" placeholder="Enter Email Address..." id="email" name="email" required></div><div class="col-2"></div></div><br>
+                            <div class="row"><div class="col-2"></div> <div class="col-8">
+                              <input class="form-control" type="text" placeholder="Username" id="username" name="username" required><br></div><div class="col-2"></div></div>
                             <div class="row"> 
                             <div class="col-2"></div>
-                              <div class="col-4"><label for="password"><strong>Password</strong></label><br>
+                              <div class="col-4">
                                   <input type="password" class="form-control" name="password" id="password" placeholder="Password" required></div>
-                              <div class="col-4"><label for="confirmPassword"><strong>Repeat Password</strong></label><br>
+                              <div class="col-4">
                                   <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password" required></div>
                           </div>
                           <div class="col-2"></div><br>
