@@ -172,25 +172,25 @@ def dashboard():
 
 #----For Mondays------
         cur=mysql.connection.cursor()
-        cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab1 where slotDay='Monday'")
+        cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab1 where slotDay='Monday'")
         mondays=cur.fetchall()
 
 #------FOR TUESDAY-------
-        cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab1 where slotDay='Tuesday'")
+        cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab1 where slotDay='Tuesday'")
         tuesdays=cur.fetchall()
 
 
     #-----FOR WEDNESDAY----
-        cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab1 where slotDay='Wednesday'")
+        cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab1 where slotDay='Wednesday'")
         wednesdays=cur.fetchall()
 
     #-------FOR THURSDAY---
-        cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab1 where slotDay='Thursday'")
+        cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab1 where slotDay='Thursday'")
         thursdays=cur.fetchall()
 
 
     #---FOR FRIDAYS----
-        cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab1 where slotDay='Friday'")
+        cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab1 where slotDay='Friday'")
         fridays=cur.fetchall()
 
         cur.close()
@@ -212,25 +212,25 @@ def lab2_dashboard():
         slots=slot['count(slotDay)']
 #----For Mondays------
         cur=mysql.connection.cursor()
-        cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab2 where slotDay='Monday'")
+        cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab2 where slotDay='Monday'")
         mondays=cur.fetchall()
 
 #------FOR TUESDAY-------
-        cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab2 where slotDay='Tuesday'")
+        cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab2 where slotDay='Tuesday'")
         tuesdays=cur.fetchall()
 
 
     #-----FOR WEDNESDAY----
-        cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab2 where slotDay='Wednesday'")
+        cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab2 where slotDay='Wednesday'")
         wednesdays=cur.fetchall()
 
     #-------FOR THURSDAY---
-        cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab2 where slotDay='Thursday'")
+        cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab2 where slotDay='Thursday'")
         thursdays=cur.fetchall()
 
 
     #---FOR FRIDAYS----
-        cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab2 where slotDay='Friday'")
+        cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab2 where slotDay='Friday'")
         fridays=cur.fetchall()
 
         cur.close()
@@ -252,14 +252,14 @@ def bookslot():
  
     if request.method=='POST':                          
         courseCode=request.form['courseCode']              
-        time=request.form["time"]
+        times=request.form.getlist("time")
         day=request.form['days']
                                                        
         cur=mysql.connection.cursor()
         cur.execute('SELECT firstName,lastName FROM USERS WHERE lecId=%s',[g.id])
         item=cur.fetchone()
-        lastname=item['lastName']
-        firstname=item['firstName']
+        lastname=item['lastName'].upper()
+        firstname=item['firstName'].upper()
         lname=lastname[1]
         fname=firstname[1]
         initials=lname+'.'+fname        
@@ -267,15 +267,25 @@ def bookslot():
         booked=cur.fetchone()
         bookedSlots=booked['count(courseCode)']
         if bookedSlots < 50:
-            cur.execute("SELECT courseCode from LAB1 WHERE slotTime=%s and slotDay=%s",[time,day])
-            slot=cur.fetchone()
-            if slot != 'NULL':
-                cur.execute(" UPDATE LAB1 SET courseCode=%s,initials=%s where slotTime=%s and slotDay=%s",[courseCode,initials,time,day])
-                mysql.connection.commit()
-                flash('Slot booked successfully')
-                return redirect(url_for('dashboard'))
+            exists = 0
+            for time in times:
+                cur.execute("SELECT slotId from LAB1 WHERE slotTime=%s and slotDay=%s and courseCode<>'NULL'",[time,day])
+                slot=cur.fetchone()
+                # if booked or slot exists
+                if slot:
+                    exists += 1
+                else:
+                    continue
+                
             else:
-                flash("Slot already booked, Please select another slot")
+                if exists:
+                    flash("Slot already booked, Please select another slots")
+                else:
+                    for time in times:
+                        cur.execute(" UPDATE LAB1 SET courseCode=%s,initials=%s where slotTime=%s and slotDay=%s",[courseCode,initials,time,day])
+                        mysql.connection.commit()
+                    flash('Slot booked successfully')
+                    return redirect(url_for('dashboard'))
         else:
             flash("Sorry, all slots have been booked")
         return redirect(url_for('dashboard'))
@@ -293,13 +303,13 @@ def bookslotlab2():
  
     if request.method=='POST':
         courseCode=request.form['courseCode']
-        time=request.form["time"]
+        times=request.form.getlist("time")
         day=request.form['days']
         cur=mysql.connection.cursor()
         cur.execute('SELECT firstName,lastName FROM USERS WHERE lecId=%s',[g.id])
         item=cur.fetchone()
-        lastname=item['lastName']
-        firstname=item['firstName']
+        lastname=item['lastName'].upper()
+        firstname=item['firstName'].upper()
         lname=lastname[1]
         fname=firstname[1]
         initials=lname+'.'+fname   
@@ -307,19 +317,29 @@ def bookslotlab2():
         cur.execute("select count(courseCode) from Lab2")
         booked=cur.fetchone()
         bookedSlots=booked['count(courseCode)']
-        if bookedSlots<50:
-            cur.execute("SELECT courseCode from LAB2 WHERE slotTime=%s and slotDay=%s",[time,day])
-            slot=cur.fetchone()
-            if slot != "NULL":
-                cur.execute(" UPDATE LAB2 SET courseCode=%s,initials=%s where slotTime=%s and slotDay=%s",[courseCode,initials,time,day])
-                mysql.connection.commit()
-                flash('Slot booked successfully')
-                return redirect(url_for('lab2_dashboard'))
+        if bookedSlots < 50:
+            exists = 0
+            for time in times:
+                cur.execute("SELECT slotId from LAB2 WHERE slotTime=%s and slotDay=%s and courseCode<>'NULL'",[time,day])
+                slot=cur.fetchone()
+                # if booked or slot exists
+                if slot:
+                    exists += 1
+                else:
+                    continue
+                
             else:
-                msg="Slot already booked, Please select another slot"
+                if exists:
+                    flash("Slot already booked, Please select another slot")
+                else:
+                    for time in times:
+                        cur.execute(" UPDATE LAB2 SET courseCode=%s,initials=%s where slotTime=%s and slotDay=%s",[courseCode,initials,time,day])
+                        mysql.connection.commit()
+                    flash('Slot booked successfully')
+                    return redirect(url_for('lab2_dashboard'))
         else:
-            msg="Sorry, all slots have been booked"
-        return render_template('lab2.html',msg=msg)
+            flash("Sorry, all slots have been booked")
+        return redirect(url_for('lab2_dashboard'))
     
     session["surname"]=g.lname
     nameOfUser=session['surname']
@@ -350,12 +370,17 @@ def updatePassword():
     if request.method=="POST":
         password=request.form['password'].encode('utf-8')
         hash_password=bcrypt.hashpw(password,bcrypt.gensalt())
-        cur=mysql.connection.cursor()
-        cur.execute("UPDATE USERS SET lecPassword=%s where lecId=%s",[hash_password,g.id])
-        mysql.connection.commit()
-        flash('Password Updated Successfully')
-        return redirect(url_for('profile'))   
-
+        confirmPassword=request.form["confirmPassword"].encode('utf-8')
+        if password!=confirmPassword:
+            flash('Passwords do not match') 
+            return redirect(url_for('profile')) 
+        else:
+            cur=mysql.connection.cursor()
+            cur.execute("UPDATE USERS SET lecPassword=%s where lecId=%s",[hash_password,g.id])
+            mysql.connection.commit()
+            flash('Password Updated Successfully')
+            return redirect(url_for('profile'))   
+    
 
 #---------------------------------
 #------Forgot Password page-------
@@ -417,6 +442,7 @@ def newuserPassword():
         mysql.connection.commit()
         flash('Password reset successful.')
         return redirect(url_for('login'))
+
 
 ##-----------------------------------------------------------------------------------------------------
 ##--------------------------------------ADMIN PAGE-----------------------------------------------------
@@ -560,24 +586,24 @@ def adminDashboard():
     availableSlots=totalSlots-bookedSlots
 #----For Mondays------
     cur=mysql.connection.cursor()
-    cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab1 where slotDay='Monday'")
+    cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab1 where slotDay='Monday'")
     mondays=cur.fetchall()
 
 #------FOR TUESDAY-------
-    cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab1 where slotDay='Tuesday'")
+    cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab1 where slotDay='Tuesday'")
     tuesdays=cur.fetchall()
 
     #-----FOR WEDNESDAY----
-    cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab1 where slotDay='Wednesday'")
+    cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab1 where slotDay='Wednesday'")
     wednesdays=cur.fetchall()
 
     #-------FOR THURSDAY---
-    cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab1 where slotDay='Thursday'")
+    cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab1 where slotDay='Thursday'")
     thursdays=cur.fetchall()
 
 
     #---FOR FRIDAYS----
-    cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab1 where slotDay='Friday'")
+    cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab1 where slotDay='Friday'")
     fridays=cur.fetchall()
 
     cur.close()
@@ -600,25 +626,25 @@ def adminlab2():
     availableSlots=totalSlots-bookedSlots
 #----For Mondays------
     cur=mysql.connection.cursor()
-    cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab2 where slotDay='Monday'")
+    cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab2 where slotDay='Monday'")
     mondays=cur.fetchall()
 
 #------FOR TUESDAY-------
-    cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab2 where slotDay='Tuesday'")
+    cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab2 where slotDay='Tuesday'")
     tuesdays=cur.fetchall()
 
 
     #-----FOR WEDNESDAY----
-    cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab2 where slotDay='Wednesday'")
+    cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab2 where slotDay='Wednesday'")
     wednesdays=cur.fetchall()
 
     #-------FOR THURSDAY---
-    cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab2 where slotDay='Thursday'")
+    cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab2 where slotDay='Thursday'")
     thursdays=cur.fetchall()
 
 
     #---FOR FRIDAYS----
-    cur.execute("SELECT coalesce(courseCode,'Slot Available') as 'courseCode',initials from lab2 where slotDay='Friday'")
+    cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab2 where slotDay='Friday'")
     fridays=cur.fetchall()
 
     cur.close()
@@ -728,11 +754,16 @@ def updateAdminPassword():
     if request.method=="POST":
         password=request.form['password'].encode('utf-8')
         hash_password=bcrypt.hashpw(password,bcrypt.gensalt())
-        cur=mysql.connection.cursor()
-        cur.execute("UPDATE ADMIN SET password=%s where adminID=%s",[hash_password,g.id])
-        mysql.connection.commit()
-        flash('Password Updated Successfully')
-        return redirect(url_for("adminProfile"))
+        confirmPassword=request.form["confirmPassword"].encode('utf-8')
+        if password!=confirmPassword:
+            flash('Passwords do not match') 
+            return redirect(url_for('adminProfile')) 
+        else:
+            cur=mysql.connection.cursor()
+            cur.execute("UPDATE ADMIN SET password=%s where adminID=%s",[hash_password,g.id])
+            mysql.connection.commit()
+            flash('Password Updated Successfully')
+            return redirect(url_for("adminProfile"))
 
 
 #---------------------------------
@@ -961,6 +992,66 @@ def newadminPassword():
         flash('Password reset successful.')
         return redirect(url_for('adminIndex'))
 
+#---------------------------------
+#--------usersearch ---------
+#---------------------------------
+@app.route('/admin/usersearch',methods=["POST","GET"])
+def usersearch():
+    if not g.type=='admin':
+        return redirect(url_for('adminIndex'))
+    if request.method=='POST':
+        tt=request.form['search']
+        test=str(tt)
+        search="%"+test+"%"
+        topic="search results for "+test
+        if search:
+            cur=mysql.connection.cursor()
+            cur.execute("SELECT * FROM users WHERE firstname LIKE %s or lastName LIKE %s",[search,search])
+            users=cur.fetchall()
+            cur.close()
+            nameOfUser='admin'
+            return render_template('admin/userslist.html',users=users,tableName=topic,nameOfUser=nameOfUser)
+
+#---------------------------------
+#--------lab1search ---------
+#---------------------------------
+@app.route('/admin/lab1search',methods=["POST","GET"])
+def lab1search():
+    if not g.type=='admin':
+        return redirect(url_for('adminIndex'))
+    if request.method=='POST':
+        tt=request.form['search']
+        test=str(tt)
+        search="%"+test+"%"
+        topic="search results for "+test
+        if search:
+            cur=mysql.connection.cursor()
+            cur.execute("SELECT * FROM lab1 WHERE slotDay LIKE %s or slotTime LIKE %s or initials LIKE %s",[search,search,search] )
+            slots=cur.fetchall()
+            cur.close()
+            lab1='lab1'
+            nameOfUser='admin'
+            return render_template('admin/timetable.html',lab1=lab1,slots=slots,tableName=topic,nameOfUser=nameOfUser)
+
+#---------------------------------
+#--------lab2search ---------
+#---------------------------------
+@app.route('/admin/lab2search',methods=["POST","GET"])
+def lab2search():
+    if not g.type=='admin':
+        return redirect(url_for('adminIndex'))
+    if request.method=='POST':
+        tt=request.form['search']
+        test=str(tt)
+        search="'%"+test+"%'"
+        topic="search results for "+test
+        if search:
+            cur=mysql.connection.cursor()
+            cur.execute("SELECT * FROM lab1 WHERE slotDay LIKE %s or slotTime LIKE %s or initials LIKE %s",[search,search,search])
+            slots=cur.fetchall()
+            cur.close()
+            nameOfUser='admin'
+            return render_template('admin/timetable.html',slots=slots,tableName=topic,nameOfUser=nameOfUser)
 
 @app.errorhandler(404)
 def page_not_found(e):

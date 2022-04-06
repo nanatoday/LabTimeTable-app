@@ -50,10 +50,10 @@
             <form  action="/signup" method="post">
                 <div class="row"> 
                     <div class="col-6">
-                        <input type="text" class="form-control" placeholder="Surname" id="surName" name="surName" required 
+                        <input type="text" class="form-control" placeholder="Surname" id="surName" name="surName" required pattern="[a-zA-Z]+"
                          title="name should contain letters. e.g. doe"></div>
                     <div class="col-6">
-                        <input type="text" class="form-control" placeholder="Firstname" id="firstName" name="firstName" required
+                        <input type="text" class="form-control" placeholder="Firstname" id="firstName" name="firstName" required pattern="[a-zA-Z]+"
                          title="name should contain letters. e.g. john"></div>
                 </div><br>
                 <div class="row">
@@ -63,9 +63,9 @@
                 <br>
                 <div class="row"> 
                     <div class="col-6">
-                        <input type="password" class="form-control" name="password" id="password" placeholder="Password" required></div>
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Password" required pattern=".{8,}" title="Eight or more characters"></div>
                     <div class="col-6">
-                        <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password" required></div>
+                        <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password" required pattern=".{8,}" title="Eight or more characters"></div>
                 </div><br>
                 <div class="text-center">
                 <button class="btn btn-dark" type="submit" >SignUp</button></div>
