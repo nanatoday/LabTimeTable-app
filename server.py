@@ -652,8 +652,7 @@ def adminlab2():
     nameOfUser='admin'
     return render_template('admin/lab2.html',nameOfUser=nameOfUser,totalSlots=totalSlots,bookedSlots=bookedSlots,availableSlots=availableSlots,mondays=mondays,tuesdays=tuesdays,wednesdays=wednesdays,thursdays=thursdays,fridays=fridays)
 
-path_wkhtmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
+
 
 #---------------------------------
 #--------lab1 timetable list------
@@ -766,30 +765,6 @@ def updateAdminPassword():
             return redirect(url_for("adminProfile"))
 
 
-#---------------------------------
-#------downlaod lab1 timetable----
-#---------------------------------
-@app.route('/admin/download',methods=["POST","GET"])
-def downloadlab1():
-    rendered=render_template('admin/dashboard.html')
-    pdf=pdfkit.from_string(rendered,False,configuration=config)
-    response=make_response(pdf)
-    response.headers["Content-Type"]="application/pdf"
-    response.headers["Content-Disposition"]="inline; filename=lab1.pdf"
-    return response
-
-
-#---------------------------------
-#------downlaod lab2 timetable----
-#---------------------------------
-@app.route('/admin/download2',methods=["POST","GET"])
-def downloadlab2():
-    rendered=render_template('admin/lab1table.html')
-    pdf=pdfkit.from_string(rendered,False)
-    response=make_response(pdf)
-    response.headers["Content-Type"]="application/pdf"
-    response.headers["Content-Disposition"]="inline; filename=lab2.pdf"
-    return response
 
 #---------------------------------
 #-------------userslist-----------
