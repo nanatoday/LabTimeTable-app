@@ -14,7 +14,7 @@ slotId int PRIMARY KEY AUTO_INCREMENT,
 slotTime varchar(15) null,
 initials varchar(5) null,
 courseCode varchar(20) null,
-slotDay varchar(20) null,
+slotDay varchar(20) null
 );
 
 CREATE TABLE lab2(
@@ -22,9 +22,8 @@ slotId int PRIMARY KEY AUTO_INCREMENT,
 slotTime varchar(15) null,
 initials varchar(5  ) null,
 courseCode varchar(20) null,
-slotDay varchar(20) null,
+slotDay varchar(20) null
 );
-
 CREATE TABLE admin(
 adminId int PRIMARY KEY AUTO_INCREMENT,
 username varchar(30) not null,
