@@ -21,9 +21,17 @@
           min-height: 100vh;         
           padding-bottom: 6rem
         }
-        a:hover{
-            transform: scale(1.1);
+
+        @media(max-width:750px){
+          #here{
+            width:90%;
+            height: 100%;
+          }  
+          #first{
+            width: 0%;
+          }
         }
+
     </style>
 </head>
 <body>
@@ -70,10 +78,10 @@
       </nav>
 
     <div class="row" >
-        <div class="col-4"></div>
-        <div class="col-4">
+        <div class="col-4" id="first"></div>
+        <div class="col-4" id="here">
           <br><br><br>
-            <div class="row" id="here">
+            <div class="row">
               
                 <div class="col text-center card shadow-lg o-hidden border-0">
                    
@@ -86,9 +94,9 @@
                   </div>
                 </div>
             </div>
-            <div class="col-4"></div>
+            
         </div>
-
+        <div class="col-4"></div>
     </div>
 
 
