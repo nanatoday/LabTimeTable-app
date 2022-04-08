@@ -25,7 +25,7 @@ app.config['MYSQL_CURSORCLASS']="DictCursor"
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USERNAME'] =os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] =os.getenv('MAIL_PASSWORD')
+app.config['MAIL_PASSWORD'] ="@Amosmen1"
 app.config['MAIL_DEFAULT_SENDER'] =os.getenv('MAIL_USERNAME')
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
@@ -104,6 +104,7 @@ def signup():
             msg.subject="Confirm your email"
             msg.html=html
             mail.send(msg)
+            flash('Account created successfully, Please check your mail for activation link')
             return redirect(url_for("home"))
 
     return render_template('signup.html',msg=msg)
@@ -138,7 +139,7 @@ def login():
         account=cur.fetchone()
         cur.close()
         if account:
-            if account['verification']=="NO":
+            if account['verification']=="YES":
                 hash_password=account['lecPassword']
                 if bcrypt.checkpw(password,hash_password.encode('utf-8')):
                     session['type']='user'
@@ -166,7 +167,7 @@ def login():
 def dashboard():
     if g.loggedin==True and request.method=="GET":
         cur=mysql.connection.cursor()
-        cur.execute("SELECT count(slotDay) FROM LAB1")
+        cur.execute("SELECT count(slotDay) FROM lab1")
         slot=cur.fetchone()
         slots=slot['count(slotDay)']
 
@@ -207,7 +208,7 @@ def dashboard():
 def lab2_dashboard():
     if g.loggedin==True and request.method=="GET":
         cur=mysql.connection.cursor()
-        cur.execute("SELECT count(slotDay) FROM LAB2")
+        cur.execute("SELECT count(slotDay) FROM lab2")
         slot=cur.fetchone()
         slots=slot['count(slotDay)']
 #----For Mondays------
@@ -260,16 +261,16 @@ def bookslot():
         item=cur.fetchone()
         lastname=item['lastName'].upper()
         firstname=item['firstName'].upper()
-        lname=lastname[1]
-        fname=firstname[1]
+        lname=lastname[0]
+        fname=firstname[0]
         initials=lname+'.'+fname        
-        cur.execute("select count(courseCode) from Lab1")
+        cur.execute("select count(courseCode) from lab1")
         booked=cur.fetchone()
         bookedSlots=booked['count(courseCode)']
         if bookedSlots < 50:
             exists = 0
             for time in times:
-                cur.execute("SELECT slotId from LAB1 WHERE slotTime=%s and slotDay=%s and courseCode<>'NULL'",[time,day])
+                cur.execute("SELECT slotId from lab1 WHERE slotTime=%s and slotDay=%s and courseCode<>'NULL'",[time,day])
                 slot=cur.fetchone()
                 # if booked or slot exists
                 if slot:
@@ -282,7 +283,7 @@ def bookslot():
                     flash("Slot already booked, Please select another slots")
                 else:
                     for time in times:
-                        cur.execute(" UPDATE LAB1 SET courseCode=%s,initials=%s where slotTime=%s and slotDay=%s",[courseCode,initials,time,day])
+                        cur.execute(" UPDATE lab1 SET courseCode=%s,initials=%s where slotTime=%s and slotDay=%s",[courseCode,initials,time,day])
                         mysql.connection.commit()
                     flash('Slot booked successfully')
                     return redirect(url_for('dashboard'))
@@ -310,17 +311,17 @@ def bookslotlab2():
         item=cur.fetchone()
         lastname=item['lastName'].upper()
         firstname=item['firstName'].upper()
-        lname=lastname[1]
-        fname=firstname[1]
+        lname=lastname[0]
+        fname=firstname[0]
         initials=lname+'.'+fname   
         cur=mysql.connection.cursor()
-        cur.execute("select count(courseCode) from Lab2")
+        cur.execute("select count(courseCode) from lab2")
         booked=cur.fetchone()
         bookedSlots=booked['count(courseCode)']
         if bookedSlots < 50:
             exists = 0
             for time in times:
-                cur.execute("SELECT slotId from LAB2 WHERE slotTime=%s and slotDay=%s and courseCode<>'NULL'",[time,day])
+                cur.execute("SELECT slotId from lab2 WHERE slotTime=%s and slotDay=%s and courseCode<>'NULL'",[time,day])
                 slot=cur.fetchone()
                 # if booked or slot exists
                 if slot:
@@ -333,7 +334,7 @@ def bookslotlab2():
                     flash("Slot already booked, Please select another slot")
                 else:
                     for time in times:
-                        cur.execute(" UPDATE LAB2 SET courseCode=%s,initials=%s where slotTime=%s and slotDay=%s",[courseCode,initials,time,day])
+                        cur.execute(" UPDATE lab2 SET courseCode=%s,initials=%s where slotTime=%s and slotDay=%s",[courseCode,initials,time,day])
                         mysql.connection.commit()
                     flash('Slot booked successfully')
                     return redirect(url_for('lab2_dashboard'))
@@ -580,7 +581,7 @@ def adminDashboard():
         return redirect(url_for('adminIndex'))
     totalSlots=50
     cur=mysql.connection.cursor()
-    cur.execute("select count(courseCode) from Lab1")
+    cur.execute("select count(courseCode) from lab1")
     booked=cur.fetchone()
     bookedSlots=booked['count(courseCode)']
     availableSlots=totalSlots-bookedSlots
@@ -620,7 +621,7 @@ def adminlab2():
         return redirect(url_for('adminIndex'))
     totalSlots=50
     cur=mysql.connection.cursor()
-    cur.execute("select count(courseCode) from Lab2")
+    cur.execute("select count(courseCode) from lab2")
     booked=cur.fetchone()
     bookedSlots=booked['count(courseCode)']
     availableSlots=totalSlots-bookedSlots
@@ -660,7 +661,7 @@ def adminlab2():
 @app.route('/admin/timetable1',methods=["POST","GET"])
 def table1():
     cur=mysql.connection.cursor()
-    cur.execute("Select * from Lab1")
+    cur.execute("Select * from lab1")
     slots=cur.fetchall()
     lab1='lab1'
     tableName='Lab 1'
@@ -673,7 +674,7 @@ def table1():
 @app.route('/admin/timetable2',methods=["POST","GET"])
 def table2():
     cur=mysql.connection.cursor()
-    cur.execute("Select * from Lab2")
+    cur.execute("Select * from lab2")
     slots=cur.fetchall()
     tableName='Lab 2'
     nameOfUser='admin'
@@ -685,7 +686,7 @@ def table2():
 @app.route('/admin/editslot/<int:itemid>',methods=["POST","GET"])
 def edit_slot(itemid):
     cur=mysql.connection.cursor()
-    cur.execute("Select * from Lab1 where slotID=%s",[itemid])
+    cur.execute("Select * from lab1 where slotID=%s",[itemid])
     item=cur.fetchone()
     lab1='lab1'
     nameOfUser='admin'
@@ -700,7 +701,7 @@ def update_slot(itemid):
         course=request.form['course']
         initials=request.form['initials']
         cur=mysql.connection.cursor()
-        cur.execute("UPDATE Lab1 set courseCode =%s,initials=%s where slotID=%s",[course,initials,itemid])
+        cur.execute("UPDATE lab1 set courseCode =%s,initials=%s where slotID=%s",[course,initials,itemid])
         mysql.connection.commit()
         return redirect(url_for('table1'))
 
@@ -710,7 +711,7 @@ def update_slot(itemid):
 @app.route('/admin/editlab2slot/<int:itemid>',methods=["POST","GET"])
 def editlab2slot(itemid):
     cur=mysql.connection.cursor()
-    cur.execute("Select * from Lab2 where slotID=%s",[itemid])
+    cur.execute("Select * from lab2 where slotID=%s",[itemid])
     item=cur.fetchone()
     return render_template('admin/editslot.html',item=item)
 
@@ -723,7 +724,7 @@ def updatelab2slot(itemid):
         course=request.form['course']
         initials=request.form['initials']
         cur=mysql.connection.cursor()
-        cur.execute("UPDATE Lab2 set courseCode =%s,initials=%s where slotID=%s",[course,initials,itemid])
+        cur.execute("UPDATE lab2 set courseCode =%s,initials=%s where slotID=%s",[course,initials,itemid])
         mysql.connection.commit()
         return redirect(url_for('table2'))
 
@@ -763,7 +764,6 @@ def updateAdminPassword():
             mysql.connection.commit()
             flash('Password Updated Successfully')
             return redirect(url_for("adminProfile"))
-
 
 
 #---------------------------------
@@ -857,8 +857,8 @@ def startSemester():
 @app.route('/admin/clearslots',methods=["POST","GET"])
 def clearSlots():
     cur=mysql.connection.cursor()
-    cur.execute("TRUNCATE TABLE LAB1")
-    cur.execute("TRUNCATE TABLE LAB2")
+    cur.execute("TRUNCATE TABLE lab1")
+    cur.execute("TRUNCATE TABLE lab2")
     mysql.connection.commit()
     
     flash('Slots cleared succesfully')
