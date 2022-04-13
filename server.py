@@ -139,7 +139,7 @@ def login():
         account=cur.fetchone()
         cur.close()
         if account:
-            if account['verification']=="YES":
+            if account['verification']=="NO":
                 hash_password=account['lecPassword']
                 if bcrypt.checkpw(password,hash_password.encode('utf-8')):
                     session['type']='user'
@@ -686,7 +686,7 @@ def table2():
 @app.route('/admin/editslot/<int:itemid>',methods=["POST","GET"])
 def edit_slot(itemid):
     cur=mysql.connection.cursor()
-    cur.execute("Select * from lab1 where slotID=%s",[itemid])
+    cur.execute("Select * from lab1 where slotId=%s",[itemid])
     item=cur.fetchone()
     lab1='lab1'
     nameOfUser='admin'
@@ -701,9 +701,32 @@ def update_slot(itemid):
         course=request.form['course']
         initials=request.form['initials']
         cur=mysql.connection.cursor()
-        cur.execute("UPDATE lab1 set courseCode =%s,initials=%s where slotID=%s",[course,initials,itemid])
+        cur.execute("UPDATE lab1 set courseCode =%s,initials=%s where slotId=%s",[course,initials,itemid])
         mysql.connection.commit()
         return redirect(url_for('table1'))
+
+#---------------------------------
+#--------Clear Slot--------------
+#---------------------------------
+@app.route('/admin/clearslot/<int:itemid>',methods=["POST","GET"])
+def clear_slot(itemid):
+    cur=mysql.connection.cursor()
+    cur.execute("UPDATE lab1 set courseCode =null,initials=null where slotId=%s",[itemid])
+    mysql.connection.commit()
+    flash('slot reset successful')
+    return redirect(url_for('table1'))
+
+#---------------------------------
+#--------Clear Slot lab2--------------
+#---------------------------------
+@app.route('/admin/clearslotlab2/<int:itemid>',methods=["POST","GET"])
+def clearlab2_slot(itemid):
+    cur=mysql.connection.cursor()
+    cur=mysql.connection.cursor()
+    cur.execute("UPDATE lab2 set courseCode =null,initials=null where slotId=%s",[itemid])
+    mysql.connection.commit()
+    flash('slot reset successful')
+    return redirect(url_for('table2'))
 
 #---------------------------------
 #--------EDIT lab 2 Slot--------------
@@ -1079,6 +1102,8 @@ def before_request():
 def after_request(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
+
+
 
 if __name__=='__main__':
     app.run(debug=True)
