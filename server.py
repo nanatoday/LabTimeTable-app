@@ -193,12 +193,15 @@ def dashboard():
     #---FOR FRIDAYS----
         cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab1 where slotDay='Friday'")
         fridays=cur.fetchall()
-
+    #FOR COURSES DROPDOWN    
+        cur.execute("select coursecode,name from courses order by name")
+        courses=cur.fetchall()
+        
         cur.close()
 
         session["surname"]=g.lname
         nameOfUser=session["surname"]
-        return render_template('dashboard.html',nameOfUser=nameOfUser,slots=slots,mondays=mondays,tuesdays=tuesdays,wednesdays=wednesdays,thursdays=thursdays,fridays=fridays)
+        return render_template('dashboard.html',nameOfUser=nameOfUser,courses=courses,slots=slots,mondays=mondays,tuesdays=tuesdays,wednesdays=wednesdays,thursdays=thursdays,fridays=fridays)
         
     else:
         return redirect(url_for('login'))
@@ -234,11 +237,14 @@ def lab2_dashboard():
         cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab2 where slotDay='Friday'")
         fridays=cur.fetchall()
 
+    #FOR COURSES DROPDOWN    
+        cur.execute("select coursecode,name from courses order by name")
+        courses=cur.fetchall()
         cur.close()
 
         session["surname"]=g.lname
         nameOfUser=session["surname"]
-        return render_template('lab2.html',nameOfUser=nameOfUser,slots=slots,mondays=mondays,tuesdays=tuesdays,wednesdays=wednesdays,thursdays=thursdays,fridays=fridays)
+        return render_template('lab2.html',nameOfUser=nameOfUser,courses=courses,slots=slots,mondays=mondays,tuesdays=tuesdays,wednesdays=wednesdays,thursdays=thursdays,fridays=fridays)
         
     else:
         return redirect(url_for('login'))
@@ -788,7 +794,49 @@ def updateAdminPassword():
             flash('Password Updated Successfully')
             return redirect(url_for("adminProfile"))
 
+#--------------------------------
+#------------courses-----------
+#--------------------------------
+@app.route('/admin/courses',methods=["POST","GET"])
+def courses():
+    if not g.type=='admin':
+        return redirect(url_for('adminIndex'))
+    cur=mysql.connection.cursor()
+    cur.execute("SELECT * FROM courses")
+    courses=cur.fetchall()
+    return render_template('admin/courses.html',courses=courses)
 
+
+
+#---------------------------------
+#---------delete course-----------
+#---------------------------------
+@app.route('/admin/deletecourse/<itemid>',methods=["POST","GET"])
+def deletecourse(itemid):
+    if not g.type=='admin':
+        return redirect(url_for('adminIndex'))
+    cur=mysql.connection.cursor()
+    cur.execute("DELETE FROM courses where courseId=%s",[itemid])
+    mysql.connection.commit()
+    flash('Course Deleted')
+    return redirect(url_for('courses'))
+    
+
+#---------------------------------
+#---------add course-----------
+#---------------------------------
+@app.route('/admin/addcourse',methods=["POST","GET"])
+def addcourse():
+    if not g.type=='admin':
+        return redirect(url_for('adminIndex'))
+    coursecode=request.form['coursecode']
+    coursename=request.form["coursename"]
+    cur=mysql.connection.cursor()
+    cur.execute('INSERT INTO courses(coursecode,name) VALUES (%s,%s)',[coursecode,coursename])
+    mysql.connection.commit()
+    flash('Course Added successfully')
+    return redirect(url_for('courses'))
+    
 #---------------------------------
 #-------------userslist-----------
 #---------------------------------
