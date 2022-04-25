@@ -52,7 +52,7 @@
   <nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #192f59;">
         <div class="container-fluid p-3">
           <a class="navbar-brand" href="#"><img src="{{url_for('static', filename='rmulogo.png')}}" alt="Avatar Logo" style="width:40px;" class="rounded-pill">RMU ICT LAB PORTAL</a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
@@ -63,17 +63,13 @@
               <li class="nav-item">
                 <a class="nav-link" href="/about">About</a>
               </li>
-              <li class="nav-item">
-                <div class="dropdown">
-                  <button type="button" class="btn nav-link dropdown-toggle" data-toggle="dropdown">
-                    {{nameOfUser}}
-                  </button>
-                  <div class="dropdown-menu">
-                    <a class="dropdown-item" href="/profile">Profile</a>
-                    <a class="dropdown-item" href="/logout">Logout</a>         
-                  </div>
-                </div>             
-              </li>    
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{nameOfUser}}</a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="/admin/profile">Profile</a></li>
+                  <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                </ul>
+              </li>     
             </ul>
           </div>
         </div>
