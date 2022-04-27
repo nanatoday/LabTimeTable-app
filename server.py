@@ -484,9 +484,9 @@ def adminSignup():
         elif password!=confirmPassword:
             msg = 'Passwords do not match'
         else:
-            cur.execute("INSERT INTO USERS(email,username,password) values (%s,%s,%s)",[email,username,hash_password])
+            cur.execute("INSERT INTO ADMIN(email,username,password) values (%s,%s,%s)",[email,username,hash_password])
             mysql.connection.commit()
-            cur.execute("SELECT * FROM admin WHERE email= %s",[email])
+            cur.execute("SELECT * FROM ADMIN WHERE email= %s",[email])
             account= cur.fetchone()
             cur.close()
             session['loggedin']=True
