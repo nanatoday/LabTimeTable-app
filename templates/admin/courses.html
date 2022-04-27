@@ -53,7 +53,7 @@
           </div>
         </div>
       </nav>   
-    <div class="row">
+    <div class="row mb-5">
         <div class="col-2"></div>
         <div class="col-6">
             <div class="row mb-5" id="here">
@@ -96,16 +96,30 @@
         <div class="col-3">
             <br>
             <div class="card shadow-lg o-hidden border-0"><div class="card-body">
-            <div class="btn btn-dark" data-bs-toggle="collapse" data-bs-target="#show">Add Course</div><hr>
+            <div class="btn btn-dark" data-bs-toggle="collapse" data-bs-target="#show">Add Csv</div><hr>
             <div class="collapse" id="show">
-            <form action="/admin/addcourse" method="post">
-                <input type="text" class="form-control" name="coursecode" placeholder="Course Code" required><br>
-                <input type="text" class="form-control" name="coursename" placeholder="Course Name" required><br>
+            <form action="/admin/addcoursecsv" method="post" enctype="multipart/form-data">
+                <input type="file" class="form-control" name="file" accept=".csv, text/csv" required><br>
+                
                 <div class="text-center"><button class="btn btn-dark" type="submit">Submit</button></div>
             </form></div>
-        </div></div>
+        </div></div><br>
+        <div class="card shadow-lg o-hidden border-0"><div class="card-body">
+          <div class="btn btn-dark" data-bs-toggle="collapse" data-bs-target="#show1">Add Course</div><hr>
+          <div class="collapse" id="show1">
+          <form action="/admin/addcourse" method="post">
+              <input type="text" class="form-control" name="coursecode" placeholder="Course Code" required><br>
+              <input type="text" class="form-control" name="coursename" placeholder="Course Name" required><br>
+              <div class="text-center"><button class="btn btn-dark" type="submit">Submit</button></div>
+          </form></div>
+      </div></div><br>
+      <div class="card shadow-lg o-hidden border-0"><div class="card-body">
+        <div><a class="btn btn-danger" href="/admin/clearcourses">Clear All Courses</a></div> 
+        </form></div>
+    </div></div>
+        
         </div>
-        </div>
+      
 
 
 

@@ -802,10 +802,9 @@ def courses():
     if not g.type=='admin':
         return redirect(url_for('adminIndex'))
     cur=mysql.connection.cursor()
-    cur.execute("SELECT * FROM courses")
+    cur.execute("SELECT * FROM courses order by name")
     courses=cur.fetchall()
     return render_template('admin/courses.html',courses=courses)
-
 
 
 #---------------------------------
@@ -820,7 +819,50 @@ def deletecourse(itemid):
     mysql.connection.commit()
     flash('Course Deleted')
     return redirect(url_for('courses'))
+
+#---------------------------------
+#---------delete all course-----------
+#---------------------------------
+@app.route('/admin/clearcourses',methods=["POST","GET"])
+def clearcourses():
+    if not g.type=='admin':
+        return redirect(url_for('adminIndex'))
+    cur=mysql.connection.cursor()
+    cur.execute("TRUNCATE TABLE courses")
+    mysql.connection.commit()
+    flash('All Courses Cleared')
+    return redirect(url_for('courses'))
     
+
+#---------------------------------
+#---------add course csv-----------
+#---------------------------------
+@app.route('/admin/addcoursecsv',methods=["POST","GET"])
+def addcoursecsv():
+        # get the uploaded file
+    uploaded_file = request.files['file']
+    if uploaded_file.filename != '':
+          # set the file path
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+          # save the file
+        uploaded_file.save(file_path)
+          # call function to parse csv
+        readCSV(file_path)
+        flash('Courses Added successfully')
+        return redirect(url_for('courses'))
+def readCSV(filePath): #function to work on csv
+      # CVS Column Names
+      col_names = ['coursecode','name']
+      # Use Pandas to parse the CSV file
+      csvData =pandas.read_csv(filePath,names=col_names, header=None)
+      # Loop through the Rows
+      for i,row in csvData.iterrows():
+             sql = "INSERT INTO courses(coursecode, name) VALUES (%s, %s)"
+             value = (row['coursecode'],row['name'])
+             cur=mysql.connection.cursor()
+             cur.execute(sql, value)
+             mysql.connection.commit()
+            
 
 #---------------------------------
 #---------add course-----------
@@ -836,6 +878,9 @@ def addcourse():
     mysql.connection.commit()
     flash('Course Added successfully')
     return redirect(url_for('courses'))
+
+
+
     
 #---------------------------------
 #-------------userslist-----------
