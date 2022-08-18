@@ -352,6 +352,35 @@ def bookslotlab2():
     nameOfUser=session['surname']
     return render_template('lab2.html',nameOfUser=nameOfUser)
 
+
+#---------------------------------
+#-----Clear lab1 Booked Slots------
+#---------------------------------
+@app.route('/clearuserslot/<int:itemid>',methods=["GET","POST"])
+def clearLab1Booked(itemid):
+    cur=mysql.connection.cursor()
+    success=cur.execute("UPDATE lab1 set courseCode=null,lecId=null,initials=null where slotId=%s and lecId=%s",[itemid,g.id])
+    mysql.connection.commit()
+    if success==True:
+        flash('Slot Cleared Successfully')
+    else:
+        flash('Action unsuccessful')
+    return redirect(url_for("bookedslots"))
+    
+#---------------------------------
+#-----Clear lab2 Booked Slots------
+#---------------------------------
+@app.route('/clearuserslot2/<int:itemid>',methods=["GET","POST"])
+def clearLab2Booked(itemid):
+    cur=mysql.connection.cursor()
+    success=cur.execute("UPDATE lab2 set courseCode=null,lecId=null,initials=null where slotId=%s and lecId=%s",[itemid,g.id])
+    mysql.connection.commit()
+    if success==True:
+        flash('Slot Cleared Successfully')
+    else:
+        flash('Action unsuccessful')
+    return redirect(url_for("bookedslots"))
+
 #---------------------------------
 #-----------Profile-------------
 #---------------------------------
@@ -727,7 +756,6 @@ def clear_slot(itemid):
 #---------------------------------
 @app.route('/admin/clearslotlab2/<int:itemid>',methods=["POST","GET"])
 def clearlab2_slot(itemid):
-    cur=mysql.connection.cursor()
     cur=mysql.connection.cursor()
     cur.execute("UPDATE lab2 set courseCode =null,initials=null where slotId=%s",[itemid])
     mysql.connection.commit()
