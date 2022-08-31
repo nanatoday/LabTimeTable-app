@@ -1,11 +1,12 @@
 
-from flask import Flask,render_template,redirect, request, send_file,url_for,session,g,flash,make_response,Response
+from sys import path
+from flask import Flask, jsonify,render_template,redirect, request, send_file,url_for,session,g,flash,make_response,Response
 from flask_mysqldb import MySQL,MySQLdb
 from flask_mail import Mail, Message
 import bcrypt 
 import os,random
 import pdfkit 
-import re
+import re,math
 import pandas
 from itsdangerous import URLSafeTimedSerializer
 from dotenv import load_dotenv
@@ -25,7 +26,7 @@ app.config['MYSQL_CURSORCLASS']="DictCursor"
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USERNAME'] =os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] ="@Amosmen1"
+app.config['MAIL_PASSWORD'] ="zjjjsgqjmvxrvzry"
 app.config['MAIL_DEFAULT_SENDER'] =os.getenv('MAIL_USERNAME')
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
@@ -40,6 +41,66 @@ app.secret_key=os.urandom(64).hex()
 
 ts = URLSafeTimedSerializer(app.config["SECRET_KEY"])
 
+###trying something
+@app.route('/dictpage/<int:cat>',defaults={'page':1})
+@app.route('/dictpage/<int:cat>/<int:page>')
+def dict(page,cat):
+    limit=3
+    offset=(limit*page) - limit
+    next=page+1
+    previous=page-1
+    cur=mysql.connection.cursor()
+    cur.execute("select count(bookId) as 'count' from books where bookId=%s",[cat])
+    num=cur.fetchall()
+    numdict=num[0]
+    total_items=numdict["count"]
+    total_pages=math.ceil(total_items/limit)
+
+    cur.execute("select * from books where bookId=%s order by bookId desc limit %s offset %s ",(cat,limit,offset))
+    books=cur.fetchall()
+    return render_template('trypage.html',books=books,page=total_pages,next=next,prev=previous)
+
+#---------------------------------
+#---------UPLOAD book-----------
+#---------------------------------
+@app.route('/uploadbook',methods=["POST","GET"])
+def uploadbook():
+    if request.method=='GET':
+        return render_template('uploadbook.html')
+
+    else:
+        uploaded_file=request.files['file']
+        img=request.files['image']      
+        if uploaded_file.filename != '':
+            # set the file path
+            bookName=uploaded_file.filename
+            imageName=img.filename
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+            img_path = os.path.join(app.config['UPLOAD_FOLDER'], img.filename)
+            # save the file
+            uploaded_file.save(file_path)
+            img.save(img_path)
+        cur=mysql.connection.cursor()
+        cur.execute("insert into books(bookPath,imagePath,bookName,imageName) values (%s,%s,%s,%s)",[file_path,img_path,bookName,imageName])
+        mysql.connection.commit()
+        return redirect(url_for('dict'))
+    
+    
+
+#---------------------------------
+#---------DOWNLOAD book-----------
+#---------------------------------
+@app.route('/downloadbook/<int:itemid>',methods=["POST","GET"])
+def downloadbook(itemid):
+    cur=mysql.connection.cursor()
+    cur.execute("SELECT * FROM books where bookId=%s",[itemid])
+    books=cur.fetchall()
+    book=books[0]
+
+    filename=book['bookName']
+    path=book['bookPath']
+    
+    return send_file(path, attachment_filename=filename, mimetype='application/pdf') 
 
 ##---------Home Page----------
 @app.route('/')
@@ -193,10 +254,10 @@ def dashboard():
     #---FOR FRIDAYS----
         cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab1 where slotDay='Friday'")
         fridays=cur.fetchall()
+
     #FOR COURSES DROPDOWN    
         cur.execute("select coursecode,name from courses order by name")
         courses=cur.fetchall()
-        
         cur.close()
 
         session["surname"]=g.lname
@@ -236,10 +297,10 @@ def lab2_dashboard():
     #---FOR FRIDAYS----
         cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab2 where slotDay='Friday'")
         fridays=cur.fetchall()
-
     #FOR COURSES DROPDOWN    
         cur.execute("select coursecode,name from courses order by name")
         courses=cur.fetchall()
+       
         cur.close()
 
         session["surname"]=g.lname
@@ -289,7 +350,7 @@ def bookslot():
                     flash("Slot already booked, Please select another slots")
                 else:
                     for time in times:
-                        cur.execute(" UPDATE lab1 SET courseCode=%s,initials=%s where slotTime=%s and slotDay=%s",[courseCode,initials,time,day])
+                        cur.execute(" UPDATE lab1 SET courseCode=%s,initials=%s,lecId=%s where slotTime=%s and slotDay=%s",[courseCode,initials,g.id,time,day])
                         mysql.connection.commit()
                     flash('Slot booked successfully')
                     return redirect(url_for('dashboard'))
@@ -340,7 +401,7 @@ def bookslotlab2():
                     flash("Slot already booked, Please select another slot")
                 else:
                     for time in times:
-                        cur.execute(" UPDATE lab2 SET courseCode=%s,initials=%s where slotTime=%s and slotDay=%s",[courseCode,initials,time,day])
+                        cur.execute(" UPDATE lab2 SET courseCode=%s,initials=%s,lecId=%s where slotTime=%s and slotDay=%s",[courseCode,initials,g.id,time,day])
                         mysql.connection.commit()
                     flash('Slot booked successfully')
                     return redirect(url_for('lab2_dashboard'))
@@ -351,6 +412,22 @@ def bookslotlab2():
     session["surname"]=g.lname
     nameOfUser=session['surname']
     return render_template('lab2.html',nameOfUser=nameOfUser)
+
+#---------------------------------
+#-----------Booked Slots----------
+#---------------------------------
+@app.route('/bookedslots',methods=["GET","POST"])
+def bookedslots():
+    if not g.loggedin==True:
+        return redirect(url_for('login'))
+
+    cur=mysql.connection.cursor()
+    cur.execute("Select * from lab1 where lecId=%s",[g.id])
+    slots=cur.fetchall()
+    cur.execute("Select * from lab2 where lecId=%s",[g.id])
+    bookings=cur.fetchall()
+    nameOfUser=session["surname"]
+    return render_template('bookedslots.html',nameOfUser=nameOfUser,slots=slots,bookings=bookings)
 
 
 #---------------------------------
@@ -380,6 +457,8 @@ def clearLab2Booked(itemid):
     else:
         flash('Action unsuccessful')
     return redirect(url_for("bookedslots"))
+
+
 
 #---------------------------------
 #-----------Profile-------------
@@ -832,7 +911,8 @@ def courses():
     cur=mysql.connection.cursor()
     cur.execute("SELECT * FROM courses order by name")
     courses=cur.fetchall()
-    return render_template('admin/courses.html',courses=courses)
+    nameOfUser='admin'
+    return render_template('admin/courses.html',courses=courses,nameOfUser=nameOfUser)
 
 
 #---------------------------------
@@ -909,7 +989,7 @@ def addcourse():
 
 
 
-    
+
 #---------------------------------
 #-------------userslist-----------
 #---------------------------------
@@ -974,9 +1054,10 @@ def addUser():
         lname=request.form['lname']
         fname=request.form['fname']
         password=request.form['password'].encode('utf-8')
+        verification="YES"
         hash_password=bcrypt.hashpw(password,bcrypt.gensalt())
         cur=mysql.connection.cursor()
-        cur.execute('INSERT INTO USERS(firstName,lastName,lecPassword,email) VALUES (%s,%s,%s,%s)',[fname,lname,hash_password,email])
+        cur.execute('INSERT INTO USERS(firstName,lastName,lecPassword,email,verification) VALUES (%s,%s,%s,%s,%s)',[fname,lname,hash_password,email,verification])
         mysql.connection.commit()
         flash('User added successfully')
         return redirect(url_for('userslist')) 
