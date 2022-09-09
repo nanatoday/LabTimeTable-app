@@ -685,6 +685,7 @@ def adminLogin():
     
     return render_template('admin/index.html',msg=msg)
 
+
 #---------------------------------
 #------dashboard lab 1-----------
 #---------------------------------
@@ -693,7 +694,7 @@ def adminLogin():
 def adminDashboard():
     if not g.type=='admin':
         return redirect(url_for('adminIndex'))
-    totalSlots=50
+    totalSlots=60
     cur=mysql.connection.cursor()
     cur.execute("select count(courseCode) from lab1")
     booked=cur.fetchone()
@@ -721,9 +722,13 @@ def adminDashboard():
     cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab1 where slotDay='Friday'")
     fridays=cur.fetchall()
 
+    #FOR COURSES DROPDOWN    
+    cur.execute("select coursecode,name from courses order by name")
+    courses=cur.fetchall()
     cur.close()
+
     nameOfUser='admin'
-    return render_template('admin/dashboard.html',nameOfUser=nameOfUser,totalSlots=totalSlots,bookedSlots=bookedSlots,availableSlots=availableSlots,mondays=mondays,tuesdays=tuesdays,wednesdays=wednesdays,thursdays=thursdays,fridays=fridays)
+    return render_template('admin/dashboard.html',nameOfUser=nameOfUser,courses=courses,totalSlots=totalSlots,bookedSlots=bookedSlots,availableSlots=availableSlots,mondays=mondays,tuesdays=tuesdays,wednesdays=wednesdays,thursdays=thursdays,fridays=fridays)
 
 #---------------------------------
 #------dashboard lab 2-----------
@@ -733,7 +738,7 @@ def adminDashboard():
 def adminlab2():
     if not g.type=='admin':
         return redirect(url_for('adminIndex'))
-    totalSlots=50
+    totalSlots=60
     cur=mysql.connection.cursor()
     cur.execute("select count(courseCode) from lab2")
     booked=cur.fetchone()
@@ -762,12 +767,102 @@ def adminlab2():
     cur.execute("SELECT coalesce(courseCode,'Available') as 'courseCode',initials from lab2 where slotDay='Friday'")
     fridays=cur.fetchall()
 
+    #FOR COURSES DROPDOWN    
+    cur.execute("select coursecode,name from courses order by name")
+    courses=cur.fetchall()
     cur.close()
 
     nameOfUser='admin'
-    return render_template('admin/lab2.html',nameOfUser=nameOfUser,totalSlots=totalSlots,bookedSlots=bookedSlots,availableSlots=availableSlots,mondays=mondays,tuesdays=tuesdays,wednesdays=wednesdays,thursdays=thursdays,fridays=fridays)
+    return render_template('admin/lab2.html',nameOfUser=nameOfUser,courses=courses,totalSlots=totalSlots,bookedSlots=bookedSlots,availableSlots=availableSlots,mondays=mondays,tuesdays=tuesdays,wednesdays=wednesdays,thursdays=thursdays,fridays=fridays)
 
 
+##---------BOOK SLOT----------
+@app.route('/admin/bookslot',methods=["POST","GET"])
+def adminBookslot():
+    if not g.loggedin==True:
+        return redirect(url_for('adminIndex'))
+   
+    if request.method=='POST':                          
+        courseCode=request.form['courseCode']              
+        times=request.form.getlist("time")
+        day=request.form['days']
+        initials= request.form['initials']                                          
+        cur=mysql.connection.cursor()
+        adminId='0'       
+        cur.execute("select count(courseCode) from lab1")
+        booked=cur.fetchone()
+        bookedSlots=booked['count(courseCode)']
+        if bookedSlots < 60:
+            exists = 0
+            for time in times:
+                cur.execute("SELECT slotId from lab1 WHERE slotTime=%s and slotDay=%s and courseCode<>'NULL'",[time,day])
+                slot=cur.fetchone()
+                # if booked or slot exists
+                if slot:
+                    exists += 1
+                else:
+                    continue
+                
+            else:
+                if exists:
+                    flash("Slot already booked, Please select another slots")
+                else:
+                    for time in times:
+                        cur.execute(" UPDATE lab1 SET courseCode=%s,initials=%s,lecId=%s where slotTime=%s and slotDay=%s",[courseCode,initials,adminId,time,day])
+                        mysql.connection.commit()
+                    flash('Slot booked successfully')
+                    return redirect(url_for('adminDashboard'))
+        else:
+            flash("Sorry, all slots have been booked")
+        return redirect(url_for('adminDashboard'))
+    
+    nameOfUser='Admin'
+    return render_template('admin/dashboard.html',nameOfUser=nameOfUser)
+ 
+##---------BOOK SLOT LAB 2----------
+@app.route('/admin/bookslotlab2',methods=["POST","GET"])
+def adminBookslotlab2():
+    if not g.loggedin==True:
+        return redirect(url_for('adminIndex'))
+   
+ 
+    if request.method=='POST':
+        courseCode=request.form['courseCode']
+        times=request.form.getlist("time")
+        day=request.form['days']
+        initials= request.form['initials']
+        cur=mysql.connection.cursor()
+        adminId='0'   
+        cur=mysql.connection.cursor()
+        cur.execute("select count(courseCode) from lab2")
+        booked=cur.fetchone()
+        bookedSlots=booked['count(courseCode)']
+        if bookedSlots < 60:
+            exists = 0
+            for time in times:
+                cur.execute("SELECT slotId from lab2 WHERE slotTime=%s and slotDay=%s and courseCode<>'NULL'",[time,day])
+                slot=cur.fetchone()
+                # if booked or slot exists
+                if slot:
+                    exists += 1
+                else:
+                    continue
+                
+            else:
+                if exists:
+                    flash("Slot already booked, Please select another slot")
+                else:
+                    for time in times:
+                        cur.execute(" UPDATE lab2 SET courseCode=%s,initials=%s,lecId=%s where slotTime=%s and slotDay=%s",[courseCode,initials,adminId,time,day])
+                        mysql.connection.commit()
+                    flash('Slot booked successfully')
+                    return redirect(url_for('adminlab2'))
+        else:
+            flash("Sorry, all slots have been booked")
+        return redirect(url_for('adminlab2'))
+    
+    nameOfUser='Admin'
+    return render_template('admin/lab2.html',nameOfUser=nameOfUser)
 
 #---------------------------------
 #--------lab1 timetable list------

@@ -78,8 +78,8 @@
       </nav>
       
     <div class="row">
-        <div class="col-1" id="first"></div>
-        <div class="col-10">
+       
+        <div class="col-12">
           
             <div class="row " id="here">
                 <div class="col text-center">
@@ -100,6 +100,8 @@
                             <th>01:50-02:40</th>
                             <th>02:40-03:30</th>
                             <th>03:30-04:20</th>
+                            <th>04:20-05:10</th>
+                            <th>05:10-06:00</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -190,7 +192,7 @@
             </div>
           </div></div>
         </div>
-        <div class="col-1" id="last"></div>
+    
     </div>
     <div class="text-center">
   {% with messages = get_flashed_messages() %}
@@ -213,7 +215,7 @@
     </div> <button id="bookSlot" style="display:none">Book Slot</button> -->
     <hr>
     <div class="container text-center mb-5">
-        <p>The RMU ICT lab slots are on a first come first served basis</p>
+        <p>The RMU ICT lab slots are alloted on a first come first served basis</p>
          <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#myModal">Book a Slot!</button>
      </div>
     <!-- The Modal -->
@@ -224,7 +226,7 @@
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title">Book Slot for Lab1</h4>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close" data-dismiss="modal"></button>
         </div>
   
         <!-- Modal body -->
@@ -257,6 +259,8 @@
                   <option value="01:50-02:40">01:50-02:40</option>
                   <option value="02:40-03:30">02:40-03:30</option>
                   <option value="03:30-04:20">03:30-04:20</option>
+                  <option value="04:20-05:10">04:20-05:10</option>
+                  <option value="05:10-06:00">05:10-06:00</option>
                   </select></div>
                   <div class="col-4">
                     <select class="form-select" name="days" id="days" required>

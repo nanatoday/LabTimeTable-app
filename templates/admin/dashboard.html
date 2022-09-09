@@ -40,11 +40,14 @@
   <nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #192f59;">
         <div class="container-fluid p-3">
           <a class="navbar-brand" href="#"><img src="{{url_for('static', filename='rmulogo.png')}}" alt="Avatar Logo" style="width:40px;" class="rounded-pill">RMU ICT LAB PORTAL ADMIN</a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
             <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="modal" href="#myModal">Book Slot</a>
+              </li>
               <li class="nav-item">
                 <a class="nav-link" href="/admin/userslist">Manage Users</a>
               </li>
@@ -55,7 +58,7 @@
                 <a class="nav-link" href="/admin/startsemester">Start New Semester</a>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">{{nameOfUser}}</a>
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{nameOfUser}}</a>
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item" href="/admin/profile">Profile</a></li>
                   <li><a class="dropdown-item" href="/logout">Logout</a></li>
@@ -93,6 +96,8 @@
                             <th>01:50-02:40</th>
                             <th>02:40-03:30</th>
                             <th>03:30-04:20</th>
+                            <th>04:20-05:10</th>
+                            <th>05:10-06:00</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -196,7 +201,80 @@
             <li class="page-item"><a class="page-link" href="/admin/lab2">LAB 2</a></li>
             </ul>
     </div>
+    <hr>
+    <div class="container text-center mb-5">
+        <p>The RMU ICT lab slots are alloted on a first come first served basis</p>
+         <button class="btn btn-dark" data-toggle="modal" data-target="#myModal">Book a Slot!</button>
+     </div>
+    <!-- The Modal -->
+<div class="modal mt-5" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+  
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Book Slot for Lab1</h4>
+          <button type="button" class="btn-close" data-dismiss="modal"></button>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="card shadow-lg o-hidden border-0">
+          <div class="card-body">
+        <div class="modal-body">
+          
+            <div class="col">
+            <form action="/admin/bookslot" method="post">
+                <div class="row"><div class="col-2"></div><div class="col-8">
+                  <select class="selectpicker mh" data-live-search="true" name="courseCode" data-width="100%" required>
+                    
+                    <option value="" hidden>Course Code</option>
+                  {%for course in courses%}
+                      <option value="{{course.coursecode}}">{{course.coursecode}},{{course.name}}</option>
+                  {%endfor%}
+                
+              </select></div>
+                <div class="col-2"></div></div><br>
+                <div class="row"><div class="col-2"></div><div class="col-4">
+                  <select multiple class="form-select" name="time" id="time" required>
+                  <option value="" hidden>Select time</option>
+                  <option value="8:00-8:50">8:00-8:50</option>
+                  <option value="8:50-9:40">8:50-9:40</option>
+                  <option value="9:40-10:30">9:40-10:30</option>
+                  <option value="10:30-11:20">10:30-11:20</option>
+                  <option value="11:20-12:10">11:20-12:10</option>
+                  <option value="12:10-01:00">12:10-01:00</option>
+                  <option value="01:00-01:50">01:00-01:50</option>
+                  <option value="01:50-02:40">01:50-02:40</option>
+                  <option value="02:40-03:30">02:40-03:30</option>
+                  <option value="03:30-04:20">03:30-04:20</option>
+                  <option value="04:20-05:10">04:20-05:10</option>
+                  <option value="05:10-06:00">05:10-06:00</option>
+                  </select></div>
+                  <div class="col-4">
+                    <select class="form-select" name="days" id="days" required>
+                      <option value="" hidden>Select Day</option>
+                      <option value="Monday">Monday</option>
+                      <option value="Tuesday">Tuesday</option>
+                      <option value="Wednesday">Wednesday</option>
+                      <option value="Thursday">Thursday</option>
+                      <option value="Friday">Friday</option>
+                      </select></div></div><br>
+                      <div class="row"><div class="col-2"></div>
+                      <div class="col-8"><input class="form-control" type="text" name="initials" id="initials" placeholder="Lecturer initials"  required max="4"></div>
+                      <div class="col-2"></div></div>
 
+        <div class="text-center"><button class="btn btn-dark" type="submit">Book</button></div>
+            </form></div>
+        </div></div></div>
+  
+        <!-- Modal footer -->
+       <!-- <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+        </div>-->
+  
+      </div>
+    </div>
+  </div>
 
 
 
@@ -215,6 +293,17 @@
           <li class="list-inline-item"><a href="#"><i class="fa fa-linkedin"></i></a></li>   
         </ul>
       </div> </div>
+          <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    
+    <!-- Latest compiled and minified JavaScript -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
+        <!-- (Optional) Latest compiled and minified JavaScript translation files -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/i18n/defaults-*.min.js"></script>
 
 </body>
 </html>
